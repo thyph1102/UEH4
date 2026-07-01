@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Công cụ tính điểm xét tuyển tích hợp UEH 2026 cho KSA và KSV, dùng dữ liệu điểm chuẩn và khung quy đổi 2025 để tham chiếu." />
+  <title>Tính điểm UEH 2026 | KSA & KSV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav class="topbar">
+      <div class="brand">
+        <div class="brand-mark">U</div>
+        <div>
+          <p class="eyebrow">UEH K52 Score Calculator</p>
+          <h1>Tính điểm xét tuyển UEH 2026</h1>
+        </div>
+      </div>
+      <a class="ghost-link" href="#sources">Nguồn & giả định</a>
+    </nav>
+
+    <section class="hero-grid">
+      <div>
+        <p class="badge">KSA · TP.HCM | KSV · UEH Mekong</p>
+        <h2>Công cụ tính điểm UEH 2026, có tham chiếu điểm chuẩn 2025</h2>
+        <p class="hero-copy">
+          Nhập điểm thi, điểm trung bình lớp 10–11–12, điểm cộng và ưu tiên. Công cụ tính theo công thức tích hợp năm 2026 trên thang 100, đồng thời dùng dữ liệu điểm chuẩn/khung quy đổi 2025 để tạo mốc so sánh tương đối.
+        </p>
+        <div class="hero-actions">
+          <button type="button" class="primary-btn" id="scrollToCalc">Bắt đầu tính điểm</button>
+        </div>
+      </div>
+      <div class="hero-card">
+        <p class="card-label">Điểm ước tính 2026</p>
+        <div class="mini-score" id="heroScore">0.00</div>
+        <p id="heroStatus">Chưa nhập dữ liệu</p>
+        <div class="mini-bars">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main id="calculator" class="app-shell">
+    <section class="panel setup-panel">
+      <div class="section-title">
+        <p class="eyebrow">Bước 1</p>
+        <h3>Chọn cơ sở, ngành và cách lấy điểm thi</h3>
+      </div>
+
+      <div class="grid two">
+        <label>
+          Cơ sở xét tuyển
+          <select id="campus">
+            <option value="KSA">KSA - UEH TP. Hồ Chí Minh</option>
+            <option value="KSV">KSV - UEH Mekong, Vĩnh Long</option>
+          </select>
+        </label>
+        <label>
+          Chương trình đào tạo 2026
+          <select id="program"></select>
+        </label>
+      </div>
+
+      <div class="grid two">
+        <label>
+          Cách lấy điểm thi 2026
+          <select id="method">
+            <option value="auto">Tự chọn điểm thi cao nhất trong các điểm đã nhập</option>
+            <option value="thpt">Chỉ dùng thi tốt nghiệp THPT</option>
+            <option value="dgnl">Chỉ dùng ĐGNL ĐHQG-HCM</option>
+            <option value="vsat">Chỉ dùng V-SAT Cần Thơ (chỉ KSV)</option>
+          </select>
+        </label>
+        <label>
+          Cách quy đổi điểm thi
+          <select id="conversionMode">
+            <option value="ueh2025">Mô phỏng theo khung quy đổi UEH 2025</option>
+            <option value="percent">Quy đổi phần trăm trực tiếp theo thang tối đa</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hint-box">
+        <strong>Đúng tinh thần 2026:</strong> điểm xét tuyển = điểm thi × 60% + ĐTB THPT × 40% + điểm cộng + ưu tiên, trên thang 100. Vì UEH 2026 chưa công bố bảng quy đổi cuối cùng trước khi có kết quả thi, chế độ mặc định dùng khung quy đổi UEH 2025 để mô phỏng.
+      </div>
+    </section>
+
+    <section class="panel input-panel">
+      <div class="section-title">
+        <p class="eyebrow">Bước 2</p>
+        <h3>Nhập điểm thi và điểm trung bình THPT</h3>
+      </div>
+
+      <div class="method-block">
+        <div class="method-head">
+          <h4>Điểm thi dùng để xét tuyển</h4>
+          <p>Nhập một hoặc nhiều loại điểm. Nếu chọn “tự chọn điểm cao nhất”, hệ thống sẽ lấy điểm quy đổi có lợi nhất. V-SAT chỉ được tính khi chọn cơ sở KSV.</p>
+        </div>
+
+        <label id="comboLabel">
+          Tổ hợp thi tốt nghiệp THPT
+          <select id="combo">
+            <option value="A00" data-subjects="Toán,Vật lí,Hóa học">A00 - Toán, Vật lí, Hóa học</option>
+            <option value="A01" data-subjects="Toán,Vật lí,Tiếng Anh">A01 - Toán, Vật lí, Tiếng Anh</option>
+            <option value="D01" data-subjects="Toán,Ngữ văn,Tiếng Anh">D01 - Toán, Ngữ văn, Tiếng Anh</option>
+            <option value="D07" data-subjects="Toán,Hóa học,Tiếng Anh">D07 - Toán, Hóa học, Tiếng Anh</option>
+            <option value="D09" data-subjects="Toán,Lịch sử,Tiếng Anh">D09 - Toán, Lịch sử, Tiếng Anh</option>
+            <option value="V00" data-subjects="Toán,Vật lí,Vẽ mỹ thuật">V00 - Toán, Vật lí, Vẽ mỹ thuật</option>
+            <option value="TIN" data-subjects="Toán,Tin học,Ngoại ngữ">Toán, Tin học, Ngoại ngữ</option>
+          </select>
+        </label>
+
+        <div id="thptInputs" class="grid three">
+          <label><span id="thptSubject1">Toán</span><input type="number" id="thpt1" min="0" max="10" step="0.01" placeholder="0-10" /></label>
+          <label><span id="thptSubject2">Vật lí</span><input type="number" id="thpt2" min="0" max="10" step="0.01" placeholder="0-10" /></label>
+          <label><span id="thptSubject3">Hóa học</span><input type="number" id="thpt3" min="0" max="10" step="0.01" placeholder="0-10" /></label>
+        </div>
+
+        <div class="grid two">
+          <label id="dgnlInputs">
+            Tổng điểm ĐGNL ĐHQG-HCM 2026
+            <input type="number" id="dgnlScore" min="0" max="1200" step="0.01" placeholder="Ví dụ: 780" />
+          </label>
+          <label id="vsatInputs">
+            Tổng điểm V-SAT 2026
+            <input type="number" id="vsatScore" min="0" max="450" step="0.01" placeholder="Ví dụ: 320" />
+          </label>
+        </div>
+      </div>
+
+      <div class="method-block gpa-block">
+        <div class="method-head">
+          <h4>Điểm trung bình các năm học THPT</h4>
+          <p>UEH 2026 tính: (ĐTB lớp 10 × 1 + ĐTB lớp 11 × 2 + ĐTB lớp 12 × 3) / 6, sau đó quy về thang 100.</p>
+        </div>
+        <div class="grid three">
+          <label>ĐTB lớp 10<input type="number" id="gpa10" min="0" max="10" step="0.01" placeholder="Ví dụ: 8.4" /></label>
+          <label>ĐTB lớp 11<input type="number" id="gpa11" min="0" max="10" step="0.01" placeholder="Ví dụ: 8.7" /></label>
+          <label>ĐTB lớp 12<input type="number" id="gpa12" min="0" max="10" step="0.01" placeholder="Ví dụ: 8.9" /></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel bonus-panel">
+      <div class="section-title">
+        <p class="eyebrow">Bước 3</p>
+        <h3>Điểm cộng và ưu tiên</h3>
+      </div>
+
+      <div class="grid two">
+        <label>
+          Chế độ điểm cộng
+          <select id="bonusMode">
+            <option value="auto">Tự tính ước tính từ quy định/định mức 2025, quy về thang 100</option>
+            <option value="manual">Nhập tay điểm cộng thang 100</option>
+          </select>
+        </label>
+        <label id="manualBonusWrap" class="hidden">
+          Điểm cộng nhập tay, tối đa 10
+          <input type="number" id="manualBonus" min="0" max="10" step="0.01" placeholder="Ví dụ: 3.5" />
+        </label>
+      </div>
+
+      <div id="autoBonusWrap">
+        <div class="grid two">
+          <label>
+            Chứng chỉ tiếng Anh quốc tế
+            <select id="ielts">
+              <option value="0">Không có / dưới IELTS 6.0</option>
+              <option value="6.0">IELTS 6.0 / TOEFL iBT 73+</option>
+              <option value="6.5">IELTS 6.5</option>
+              <option value="7.0">IELTS 7.0 trở lên</option>
+            </select>
+          </label>
+          <label>
+            Giải HSG THPT cấp tỉnh/thành phố
+            <select id="hsg">
+              <option value="0">Không có</option>
+              <option value="nhat">Giải Nhất</option>
+              <option value="nhi">Giải Nhì</option>
+              <option value="ba">Giải Ba</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid two">
+          <fieldset class="check-card">
+            <legend>Học sinh Giỏi/Xuất sắc cả năm</legend>
+            <label><input type="checkbox" id="good10" /> Lớp 10</label>
+            <label><input type="checkbox" id="good11" /> Lớp 11</label>
+            <label><input type="checkbox" id="good12" /> Lớp 12</label>
+          </fieldset>
+          <fieldset class="check-card">
+            <legend>Trường chuyên/năng khiếu</legend>
+            <label><input type="checkbox" id="spec10" /> Lớp 10</label>
+            <label><input type="checkbox" id="spec11" /> Lớp 11</label>
+            <label><input type="checkbox" id="spec12" /> Lớp 12</label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <label>
+          Khu vực ưu tiên
+          <select id="region">
+            <option value="0">KV3 - 0.00</option>
+            <option value="0.25">KV2 - 0.25</option>
+            <option value="0.5">KV2-NT - 0.50</option>
+            <option value="0.75">KV1 - 0.75</option>
+          </select>
+        </label>
+        <label>
+          Đối tượng ưu tiên
+          <select id="objectPriority">
+            <option value="0">Không có</option>
+            <option value="2">ĐT01-ĐT04 - 2.00</option>
+            <option value="1">ĐT05-ĐT07 - 1.00</option>
+          </select>
+        </label>
+        <label>
+          Giải KHKT
+          <select id="khkt">
+            <option value="0">Không cộng riêng trong mô hình này</option>
+            <option value="1">Có giải KHKT - chỉ ghi chú</option>
+          </select>
+        </label>
+      </div>
+      <div class="warning-box" id="khktNote">
+        Mô hình điểm cộng tự động chỉ dựa trên các tiêu chí UEH nêu cho xét tuyển tích hợp 2026: chứng chỉ tiếng Anh, giải HSG cấp tỉnh/thành phố đúng môn, trường chuyên/năng khiếu. Giải KHKT không được cộng tự động nếu UEH không công bố định mức riêng.
+      </div>
+    </section>
+
+    <section class="result-grid">
+      <article class="panel result-card">
+        <div class="section-title inline">
+          <div>
+            <p class="eyebrow">Kết quả</p>
+            <h3>Điểm xét tuyển UEH 2026 ước tính</h3>
+          </div>
+          <button type="button" class="secondary-btn small" id="copyResult">Sao chép</button>
+        </div>
+        <div class="score-main" id="totalScore">0.00</div>
+        <p class="score-caption">Tổng điểm xét tuyển trên thang 100</p>
+        <div class="breakdown">
+          <div><span>Điểm thi quy đổi</span><strong id="examScore">0.00</strong></div>
+          <div><span>ĐTB THPT quy đổi</span><strong id="gpaScore">0.00</strong></div>
+          <div><span>Điểm nền 60/40</span><strong id="baseScore">0.00</strong></div>
+          <div><span>Điểm cộng</span><strong id="bonusScore">+0.00</strong></div>
+          <div><span>Ưu tiên</span><strong id="priorityScore">+0.00</strong></div>
+        </div>
+        <p class="formula-note" id="formulaNote">Chọn phương thức và nhập điểm để tính.</p>
+      </article>
+
+      <article class="panel compare-card">
+        <div class="section-title">
+          <p class="eyebrow">Đối chiếu dữ liệu 2025</p>
+          <h3>So với ngành đã chọn</h3>
+        </div>
+        <div class="compare-box">
+          <p id="programName">Chưa chọn ngành</p>
+          <div class="gap-row">
+            <div>
+              <span>Điểm 2025 quy về /100</span>
+              <strong id="cutoffScore">0.00</strong>
+            </div>
+            <div>
+              <span>Chênh lệch</span>
+              <strong id="gapScore">0.00</strong>
+            </div>
+          </div>
+          <div class="status-pill" id="admissionStatus">Chưa đủ dữ liệu</div>
+        </div>
+        <p class="small-note">Mốc 2025 chỉ là tham chiếu tương đối vì năm 2026 dùng công thức tích hợp thang 100 và bảng quy đổi chính thức có thể khác.</p>
+      </article>
+    </section>
+
+    <section class="panel fit-panel">
+      <div class="section-title inline">
+        <div>
+          <p class="eyebrow">Gợi ý</p>
+          <h3>Ngành có mốc 2025 quy đổi ≤ điểm ước tính của bạn</h3>
+        </div>
+        <button type="button" class="secondary-btn small" id="printPage">In / lưu PDF</button>
+      </div>
+      <div id="eligibleList" class="program-list"></div>
+    </section>
+
+    <section id="sources" class="panel source-panel">
+      <div class="section-title">
+        <p class="eyebrow">Nguồn dữ liệu</p>
+        <h3>Căn cứ xây dựng công cụ</h3>
+      </div>
+      <ul>
+        <li>Công thức xét tuyển tích hợp UEH 2026: điểm thi 60%, ĐTB THPT 40%, điểm cộng và ưu tiên.</li>
+        <li>Danh sách chương trình KSA/KSV 2026 và cột “Điểm 2025” do UEH công bố để tham khảo.</li>
+        <li>Khung quy đổi tương đương UEH 2025 được dùng để mô phỏng điểm ĐGNL/V-SAT trước khi có bảng quy đổi 2026.</li>
+        <li>Web chạy tĩnh trên GitHub Pages, dữ liệu nhập chỉ xử lý trong trình duyệt.</li>
+      </ul>
+      <p class="small-note">
+        Khi UEH công bố mức điểm nhận hồ sơ, bảng quy đổi tương đương và điểm chuẩn 2026, chỉ cần cập nhật dữ liệu trong <code>script.js</code>.
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Công cụ tham khảo UEH 2026 · Dữ liệu nền 2025 · Thiết kế để chạy trên GitHub Pages · Tác giả: Trương Minh Khiêm</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
